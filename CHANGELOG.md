@@ -1,5 +1,12 @@
 
 
+## [1.1.0](https://github.com/piradite/screenshotr/compare/1.0.0...1.1.0) (2024-08-15)
+
+
+### Bug Fixes
+
+* improve screenshot program and fix multiple bugs from v1.0.0 ([1dfcd3f](https://github.com/piradite/screenshotr/commit/1dfcd3f20e584e96a7637cabff3c79175f82e970))
+
 ## 1.0.0 (2024-08-15)
 
 
