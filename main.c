@@ -39,43 +39,52 @@ void save_image_to_png(XImage *i) {
         handle_error("Failed to create PNG info structure", 1);
     }
 
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_write_struct(&png, &info);
+        fclose(fp);
+        handle_error("Failed during PNG creation", 1);
+    }
+
     png_init_io(png, fp);
-    png_set_IHDR(png, info, i->width, i->height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+    png_set_compression_level(png, 0);
+
+    png_set_IHDR(png, info, i->width, i->height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_BASE);
     png_write_info(png, info);
 
-    png_bytep row_pointers[i->height];
+    png_bytep row = (png_bytep)malloc(i->width * 3 * sizeof(png_byte));
+    if (!row) {
+        png_destroy_write_struct(&png, &info);
+        fclose(fp);
+        handle_error("Failed to allocate memory for row", 1);
+    }
 
     for (int y = 0; y < i->height; y++) {
-        row_pointers[y] = (png_bytep)malloc(i->width * 3 * sizeof(png_byte));
-        if (!row_pointers[y]) {
-            handle_error("Failed to allocate memory for row", 1);
-        }
+        png_bytep ptr = row;
         for (int x = 0; x < i->width; x++) {
-            unsigned long p = XGetPixel(i, x, y);
-            int offset = x * 3;
-            row_pointers[y][offset] = (p >> 16) & 0xFF;
-            row_pointers[y][offset + 1] = (p >> 8) & 0xFF;
-            row_pointers[y][offset + 2] = p & 0xFF;
+            unsigned long pixel = XGetPixel(i, x, y);
+            *ptr++ = (pixel >> 16) & 0xFF;
+            *ptr++ = (pixel >> 8) & 0xFF;
+            *ptr++ = pixel & 0xFF;
         }
+        png_write_row(png, row);
     }
 
-    png_write_image(png, row_pointers);
-
-    for (int y = 0; y < i->height; y++) {
-        free(row_pointers[y]);
-    }
-
+    free(row);
     png_write_end(png, NULL);
     fclose(fp);
+    png_destroy_write_struct(&png, &info);
 }
 
 void notify_user(const char *message) {
+    // Use a more efficient method if possible
     char cmd[256];
     snprintf(cmd, sizeof(cmd), "notify-send -u low -t 1500 -i %s 'Screenshot' '%s'", DEFAULT_PATH, message);
     system(cmd);
 }
 
 void copy_to_clipboard() {
+    // Check if xclip is available and use it efficiently
     char cmd[256];
     snprintf(cmd, sizeof(cmd), "xclip -selection clipboard -t image/png -i %s", DEFAULT_PATH);
     system(cmd);
