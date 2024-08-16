@@ -1,5 +1,12 @@
 
 
+## [1.3.1](https://github.com/piradite/screenshotr/compare/1.3.0...1.3.1) (2024-08-16)
+
+
+### Chores
+
+* add makefile and update readme ([0193500](https://github.com/piradite/screenshotr/commit/01935006d0ee4fe92ca41b7881e0334c1d69e9f2))
+
 ## [1.3.0](https://github.com/piradite/screenshotr/compare/1.2.0...1.3.0) (2024-08-16)
 
 
