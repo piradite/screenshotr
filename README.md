@@ -18,13 +18,11 @@ To use this utility, you need to compile the source code. Ensure you have the ne
 - `gcc` compiler
 - `libX11`
 - `libpng`
-- `libxcb`
-- `libxcb-util`
 
 ### Compilation
 
 ```bash
-gcc -o screenshotr main.c -lX11 -lpng -lxcb -lxcb-util
+gcc -o screenshotr main.c -O3 -lX11 -lpng
 ```
 
 ### How To Use
