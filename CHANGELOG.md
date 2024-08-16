@@ -1,5 +1,17 @@
 
 
+## [1.3.0](https://github.com/piradite/screenshotr/compare/1.2.0...1.3.0) (2024-08-16)
+
+
+### Features
+
+* bring back more detailed usage information ([202399f](https://github.com/piradite/screenshotr/commit/202399fcdc8ec9db613cd3682946d3e6909fe95e))
+
+
+### Chores
+
+* remove screenshotr executable i accidentaly pushed ([4939fa9](https://github.com/piradite/screenshotr/commit/4939fa9e1a12c52fdf5e57f1bb718765c946518f))
+
 ## [1.2.0](https://github.com/piradite/screenshotr/compare/1.1.0...1.2.0) (2024-08-16)
 
 
