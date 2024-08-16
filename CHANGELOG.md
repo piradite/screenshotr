@@ -1,5 +1,24 @@
 
 
+## [1.2.0](https://github.com/piradite/screenshotr/compare/1.1.0...1.2.0) (2024-08-16)
+
+
+### Features
+
+* save screenshots directly to clipboard, thumbnail generation, code optimization ([7b65b26](https://github.com/piradite/screenshotr/commit/7b65b269f7a07bffe0268e808cfb65560cf9d52c))
+
+
+### Code Refactoring
+
+* **main, docs:** improve image processing and error handling ([f4f6dd2](https://github.com/piradite/screenshotr/commit/f4f6dd2f9e5d528157b13eb0a21cca7128d13501))
+* separate repeated commands into their own functions ([5e52dbf](https://github.com/piradite/screenshotr/commit/5e52dbf75e2eae3be59baa3878df3d412c4ef34c))
+* streamline image saving and argument handling ([9f617e7](https://github.com/piradite/screenshotr/commit/9f617e7f1ca209f26af7f6a9bbd0be3f11f3f7b2))
+
+
+### Performance Improvements
+
+* speed up the program by optimizing save_image_to_png function ([4a9c792](https://github.com/piradite/screenshotr/commit/4a9c7924562f04452d77cff18c7cb616fcad04eb))
+
 ## [1.1.0](https://github.com/piradite/screenshotr/compare/1.0.0...1.1.0) (2024-08-15)
 
 
