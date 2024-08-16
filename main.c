@@ -7,8 +7,9 @@
 #include <X11/Xatom.h>
 #include <X11/cursorfont.h>
 #include <png.h>
-#include <omp.h>
-#define min(a, b) (((a) < (b))? (a) : (b))
+
+#define DEFAULT_PATH "/tmp/screenshot.png"
+#define min(a, b) (((a) < (b)) ? (a) : (b))
 
 void handle_error(const char *msg, int code) {
     fprintf(stderr, "Error: %s\n", msg);
@@ -19,8 +20,8 @@ XImage *capture_screen(Display *d, Window w, int x, int y, int width, int height
     return XGetImage(d, w, x, y, width, height, AllPlanes, ZPixmap);
 }
 
-void save_image_to_png(XImage *i, const char *f) {
-    FILE *fp = fopen(f, "wb");
+void save_image_to_png(XImage *i) {
+    FILE *fp = fopen(DEFAULT_PATH, "wb");
     if (!fp) {
         handle_error("Failed to open file for writing", 1);
     }
@@ -68,13 +69,25 @@ void save_image_to_png(XImage *i, const char *f) {
     fclose(fp);
 }
 
+void notify_user(const char *message) {
+    char cmd[256];
+    snprintf(cmd, sizeof(cmd), "notify-send -u low -t 1500 -i %s 'Screenshot' '%s'", DEFAULT_PATH, message);
+    system(cmd);
+}
+
+void copy_to_clipboard() {
+    char cmd[256];
+    snprintf(cmd, sizeof(cmd), "xclip -selection clipboard -t image/png -i %s", DEFAULT_PATH);
+    system(cmd);
+}
+
 void screenshot_whole_screen(Display *d) {
     XImage *i = capture_screen(d, DefaultRootWindow(d), 0, 0, DisplayWidth(d, DefaultScreen(d)), DisplayHeight(d, DefaultScreen(d)));
-    save_image_to_png(i, "/tmp/screenshot.png");
+    save_image_to_png(i);
     XDestroyImage(i);
 
-    system("notify-send -u low -t 1500 -i /tmp/screenshot.png 'Screenshot' 'Screenshot saved and copied to clipboard'");
-    system("xclip -selection clipboard -t image/png -i /tmp/screenshot.png");
+    notify_user("Screenshot saved and copied to clipboard");
+    copy_to_clipboard();
 }
 
 Window get_active_window(Display *d) {
@@ -100,11 +113,11 @@ void screenshot_active_window(Display *d) {
     XGetWindowAttributes(d, w, &attr);
     XImage *i = capture_screen(d, w, 0, 0, attr.width, attr.height);
 
-    save_image_to_png(i, "/tmp/screenshot.png");
+    save_image_to_png(i);
     XDestroyImage(i);
 
-    system("notify-send -u low -t 1500 -i /tmp/screenshot.png 'Screenshot' 'Screenshot saved and copied to clipboard'");
-    system("xclip -selection clipboard -t image/png -i /tmp/screenshot.png");
+    notify_user("Screenshot saved and copied to clipboard");
+    copy_to_clipboard();
 }
 
 void screenshot_selected_area(Display *d) {
@@ -121,7 +134,7 @@ void screenshot_selected_area(Display *d) {
 
     XMaskEvent(d, ButtonReleaseMask, &event);
     if (event.xbutton.x_root == x1 && event.xbutton.y_root == y1) {
-        system("notify-send -u low -t 2000 -i i 'Screenshot' 'Screenshot has been cancelled'");
+        notify_user("Screenshot has been cancelled");
         exit(0);
     }
 
@@ -137,13 +150,12 @@ void screenshot_selected_area(Display *d) {
     int start_y = y1 < y2 ? y1 : y2;
 
     XImage *i = capture_screen(d, root, start_x, start_y, width, height);
-    save_image_to_png(i, "/tmp/screenshot.png");
+    save_image_to_png(i);
     XDestroyImage(i);
 
-    system("notify-send -u low -t 1500 -i /tmp/screenshot.png 'Screenshot' 'Screenshot saved and copied to clipboard'");
-    system("xclip -selection clipboard -t image/png -i /tmp/screenshot.png");
+    notify_user("Screenshot saved and copied to clipboard");
+    copy_to_clipboard();
 }
-
 
 int main(int argc, char *argv[]) {
     int delay = 0;
