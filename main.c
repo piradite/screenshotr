@@ -154,6 +154,11 @@ int main(int argc, char *argv[]) {
 
     if (argc < 2 || strcmp(argv[1], "--help") == 0) {
         printf("Usage: %s [--now, -n | --inX | --active | --select]\n", argv[0]);
+        printf("Options:\n");
+        printf("  --now, -n: Take screenshot immediately.\n");
+        printf("  --inX: Take screenshot after X seconds.\n");
+        printf("  --active: Take screenshot of active window after clicking on it.\n");
+        printf("  --select: Select area of the screen to capture using the mouse.\n");
         return 0;
     }
 
