@@ -18,11 +18,57 @@ To use this utility, you need to compile the source code. Ensure you have the ne
 - `gcc` compiler
 - `libX11`
 - `libpng`
+- `notify-send (optional)`
 
-### Compilation
+### Installing Packages
+
+#### Debian/Ubuntu
+
+On Debian-based distributions such as Debian, Ubuntu, or Linux Mint, use apt to install the required packages:
 
 ```bash
-gcc -o screenshotr main.c -O3 -lX11 -lpng
+sudo apt-get update
+sudo apt-get install gcc libx11-dev libpng-dev libnotify-bin
+```
+
+#### Fedora
+
+On Fedora, you can use dnf to install the dependencies:
+
+```bash
+sudo dnf install gcc libX11-devel libpng-devel libnotify
+```
+
+#### Arch Linux
+
+On Arch Linux or Arch-based distributions, you can install the necessary dependencies using pacman:
+
+```bash
+sudo pacman -S gcc libx11 libpng notify-osd
+```
+
+### System-wide Installations
+
+To install ScreenshotR on your system, run the following command:
+
+```bash
+make install
+```
+
+This will compile and install ScreenshotR system-wide. Ensure you have the necessary permissions to install software on your system.
+
+### Local Compilation
+
+If you prefer to compile ScreenshotR without installing it system-wide, use:
+
+```bash
+make
+```
+
+Alternatively, you can compile it directly using GCC with the following command:
+
+```bash
+gcc -o screenshotr main.c -O2 -lX11 -lpng
 ```
 
 ### How To Use
