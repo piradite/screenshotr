@@ -12,12 +12,12 @@
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 
-void handle_error(const char *msg, int code) {
+void error(const char *msg, int code) {
     fprintf(stderr, "Error: %s\n", msg);
     exit(code);
 }
 
-int check_notify_send() {
+int check_notify() {
     return system("command -v notify-send > /dev/null 2>&1") == 0;
 }
 
@@ -28,7 +28,7 @@ XImage *capture_screen(Display *d, Window w, int x, int y, int width, int height
 void save_image_to_png(XImage *i, FILE *fp, int thumb) {
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     png_infop info = png_create_info_struct(png);
-    if (!png || !info || setjmp(png_jmpbuf(png))) handle_error("PNG error", 1);
+    if (!png || !info || setjmp(png_jmpbuf(png))) error("PNG error", 1);
 
     png_init_io(png, fp);
     png_set_compression_level(png, 1);
@@ -39,7 +39,7 @@ void save_image_to_png(XImage *i, FILE *fp, int thumb) {
     png_write_info(png, info);
 
     png_bytep row = malloc(width * 3);
-    if (!row) handle_error("Memory error", 1);
+    if (!row) error("Memory error", 1);
 
     for (int y = 0; y < height; y++) {
         png_bytep ptr = row;
@@ -59,20 +59,20 @@ void save_image_to_png(XImage *i, FILE *fp, int thumb) {
 
 void save_thumbnail_image(XImage *i) {
     FILE *fp = fopen(THUMBNAIL_PATH, "wb");
-    if (!fp) handle_error("File error", 1);
+    if (!fp) error("File error", 1);
     save_image_to_png(i, fp, 1);
     fclose(fp);
 }
 
 void copy_to_clipboard(XImage *i) {
     FILE *fp = popen("xclip -selection clipboard -t image/png", "w");
-    if (!fp) handle_error("Pipe error", 1);
+    if (!fp) error("Pipe error", 1);
     save_image_to_png(i, fp, 0);
     pclose(fp);
 }
 
 void notify_user(const char *message) {
-    if (check_notify_send()) {
+    if (check_notify()) {
         char cmd[256];
         snprintf(cmd, sizeof(cmd), "notify-send -u low -t 1500 -i %s 'Screenshot' '%s'", THUMBNAIL_PATH, message);
         system(cmd);
@@ -87,7 +87,7 @@ void screenshot_whole_screen(Display *d) {
         copy_to_clipboard(i);
         XDestroyImage(i);
     } else {
-        handle_error("Failed to capture screen", 1);
+        error("Failed to capture screen", 1);
     }
 }
 
@@ -113,10 +113,10 @@ void screenshot_active_window(Display *d) {
             copy_to_clipboard(i);
             XDestroyImage(i);
         } else {
-            handle_error("Failed to capture active window", 1);
+            error("Failed to capture active window", 1);
         }
     } else {
-        handle_error("Failed to get window attributes", 1);
+        error("Failed to get window attributes", 1);
     }
 }
 
@@ -145,7 +145,7 @@ void screenshot_selected_area(Display *d) {
         copy_to_clipboard(i);
         XDestroyImage(i);
     } else {
-        handle_error("Failed to capture selected area", 1);
+        error("Failed to capture selected area", 1);
     }
 }
 
@@ -167,15 +167,15 @@ int main(int argc, char *argv[]) {
         else if (strncmp(argv[i], "--in", 4) == 0) delay = atoi(argv[i] + 4);
         else if (strcmp(argv[i], "--active") == 0) active_flag = 1;
         else if (strcmp(argv[i], "--select") == 0) select_flag = 1;
-        else handle_error("Invalid argument", 1);
+        else error("Invalid argument", 1);
     }
 
     if ((now_flag && (delay || active_flag || select_flag)) ||
         (delay && (active_flag || select_flag)) ||
-        (active_flag && select_flag)) handle_error("Invalid combination of flags", 1);
+        (active_flag && select_flag)) error("Invalid combination of flags", 1);
 
     Display *display = XOpenDisplay(NULL);
-    if (!display) handle_error("Failed to open display", 1);
+    if (!display) error("Failed to open display", 1);
 
     if (now_flag) screenshot_whole_screen(display);
     else if (delay) { sleep(delay); screenshot_whole_screen(display); }
