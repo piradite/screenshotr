@@ -6,6 +6,7 @@
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 #include <png.h>
+#include <stdbool.h>
 
 #define THUMBNAIL_PATH "/tmp/thumb.png"
 #define THUMBNAIL_SCALE 16
@@ -71,19 +72,24 @@ void copy_to_clipboard(XImage *i) {
     pclose(fp);
 }
 
-void notify_user(const char *message) {
+void notify_user(const char *message, bool include_thumbnail) {
     if (check_notify()) {
         char cmd[256];
-        snprintf(cmd, sizeof(cmd), "notify-send -u low -t 1500 -i %s 'Screenshot' '%s'", THUMBNAIL_PATH, message);
+        if (include_thumbnail) {
+            snprintf(cmd, sizeof(cmd), "notify-send -u low -t 1500 -i %s 'Screenshot' '%s'", THUMBNAIL_PATH, message);
+        } else {
+            snprintf(cmd, sizeof(cmd), "notify-send -i none -u low -t 1500 'Screenshot' '%s'", message);
+        }
         system(cmd);
     }
 }
+
 
 void screenshot_whole_screen(Display *d) {
     XImage *i = capture_screen(d, DefaultRootWindow(d), 0, 0, DisplayWidth(d, DefaultScreen(d)), DisplayHeight(d, DefaultScreen(d)));
     if (i) {
         save_thumbnail_image(i);
-        notify_user("Screenshot taken");
+        notify_user("Screenshot taken", 1);
         copy_to_clipboard(i);
         XDestroyImage(i);
     } else {
@@ -109,7 +115,7 @@ void screenshot_active_window(Display *d) {
         XImage *i = capture_screen(d, w, 0, 0, attr.width, attr.height);
         if (i) {
             save_thumbnail_image(i);
-            notify_user("Screenshot taken");
+            notify_user("Screenshot taken", 1);
             copy_to_clipboard(i);
             XDestroyImage(i);
         } else {
@@ -131,7 +137,7 @@ void screenshot_selected_area(Display *d) {
     int x2 = event.xbutton.x_root, y2 = event.xbutton.y_root;
 
     if (x2 == x1 && y2 == y1) {
-        notify_user("Screenshot cancelled");
+        notify_user("Screenshot cancelled", 0);
         exit(0);
     }
 
@@ -141,7 +147,7 @@ void screenshot_selected_area(Display *d) {
     XImage *i = capture_screen(d, root, start_x, start_y, width, height);
     if (i) {
         save_thumbnail_image(i);
-        notify_user("Screenshot taken");
+        notify_user("Screenshot taken", 1);
         copy_to_clipboard(i);
         XDestroyImage(i);
     } else {
